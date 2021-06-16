@@ -26,7 +26,8 @@ public class Client extends JFrame {
 		btnSend.addActionListener(a -> {
 			// upload 1.txt
 			// download img.png
-			String[] cmd = textField.getText().split(" ");
+			String[] cmd = textField.getText().split(" ", 2); // limit: 2 добавлено для корректной работы с файлами,
+																		// содержащими пробелы в названии
 			if ("upload".equals(cmd[0])) {
 				sendFile(cmd[1]);
 			} else if ("download".equals(cmd[0])) {
@@ -46,11 +47,51 @@ public class Client extends JFrame {
 				sendMessage("exit");
 			}
 		});
+
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);
 	}
 
-	private void getFile(String s) {
-		// TODO: 14.06.2021  
+	private void getFile(String filename) {
+		// TODO: 14.06.2021
+		try {
+			out.writeUTF("download");
+			out.writeUTF(filename);
+			if ("File not found".equals(in.readUTF())) {
+				throw new FileNotFoundException("File not found");
+			}
+
+			File file = new File("client" + File.separator + in.readUTF());
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileOutputStream fos = new FileOutputStream(file);
+
+			long size = in.readLong();
+			byte[] buffer = new byte[8 * 1024];
+			long remainingSize = size;
+
+			while (remainingSize != 0) {
+				int read = in.read(buffer);
+				remainingSize -= read;
+				fos.write(buffer, 0, read);
+			}
+
+			fos.close();
+			String status = null;
+			if (size == file.length()) {
+				status = "OK";
+			} else {
+				status = "Error. File was corrupted";
+			}
+
+			System.out.println("Downloading status: " + status);
+			out.writeUTF(status);
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void sendFile(String filename) {
@@ -77,6 +118,7 @@ public class Client extends JFrame {
 
 			String status = in.readUTF();
 			System.out.println("sending status: " + status);
+			fis.close();
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
