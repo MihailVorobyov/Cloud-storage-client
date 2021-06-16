@@ -33,7 +33,6 @@ public class ClientHandler implements Runnable {
 						FileOutputStream fos = new FileOutputStream(file);
 
 						long size = in.readLong();
-						System.out.println("Expected file size: " + size);	// для дебага
 						byte[] buffer = new byte[8 * 1024];
 
 						long remainingSize = size;
@@ -54,7 +53,6 @@ public class ClientHandler implements Runnable {
 						}
 
 						System.out.println("Upload status: " + status);
-						System.out.println("File size: " + file.length());	// для дебага
 						out.writeUTF(status);
 					} catch (Exception e) {
 						//out.writeUTF("FATAL ERROR");

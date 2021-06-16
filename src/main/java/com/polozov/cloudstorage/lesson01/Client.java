@@ -102,7 +102,6 @@ public class Client extends JFrame {
 			}
 
 			long fileLength = file.length();
-			System.out.println("File size: " + fileLength);	// для дебага
 			FileInputStream fis = new FileInputStream(file);
 
 			out.writeUTF("upload");
@@ -113,7 +112,6 @@ public class Client extends JFrame {
 			byte[] buffer = new byte[8 * 1024];
 			while ((read = fis.read(buffer)) != -1) {
 				out.write(buffer, 0, read);
-				System.out.println("read = " + read); 	// для дебага
 			}
 
 			out.flush();
