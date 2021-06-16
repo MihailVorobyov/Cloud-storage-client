@@ -1,9 +1,6 @@
 package com.polozov.cloudstorage.lesson01;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class ClientHandler implements Runnable {
@@ -21,41 +18,89 @@ public class ClientHandler implements Runnable {
 				DataInputStream in = new DataInputStream(socket.getInputStream())
 		) {
 			System.out.printf("Client %s connected\n", socket.getInetAddress());
+
 			while (true) {
 				String command = in.readUTF();
+				System.out.println(command);
+
 				if ("upload".equals(command)) {
 					try {
 						File file = new File("server"  + File.separator + in.readUTF());
 						if (!file.exists()) {
 							 file.createNewFile();
 						}
+
 						FileOutputStream fos = new FileOutputStream(file);
 
 						long size = in.readLong();
-
+						System.out.println("Expected file size: " + size);	// для дебага
 						byte[] buffer = new byte[8 * 1024];
 
-						for (int i = 0; i < (size + (buffer.length - 1)) / (buffer.length); i++) {
+						long remainingSize = size;
+
+						while (remainingSize != 0) {
 							int read = in.read(buffer);
+							remainingSize -= read;
 							fos.write(buffer, 0, read);
 						}
+
 						fos.close();
-						out.writeUTF("OK");
+
+						String status = null;
+						if (size == file.length()) {
+							status = "OK";
+						} else {
+							status = "Error. File was corrupted";
+						}
+
+						System.out.println("Upload status: " + status);
+						System.out.println("File size: " + file.length());	// для дебага
+						out.writeUTF(status);
 					} catch (Exception e) {
-						out.writeUTF("FATAL ERROR");
+						//out.writeUTF("FATAL ERROR");
 					}
 				}
 
 				if ("download".equals(command)) {
 					// TODO: 14.06.2021
+
+					try {
+						File file = new File("server" + File.separator + in.readUTF());
+						if (!file.exists()) {
+							out.writeUTF("File not found");
+						} else {
+							out.writeUTF("File OK");
+						}
+
+						long fileLength = file.length();
+						FileInputStream fis = new FileInputStream(file);
+
+						out.writeUTF(file.getName());
+						out.writeLong(fileLength);
+
+						int read = 0;
+						byte[] buffer = new byte[8 * 1024];
+						while ((read = fis.read(buffer)) != -1) {
+							out.write(buffer, 0, read);
+						}
+						out.flush();
+						fis.close();
+
+						String status = in.readUTF();
+						System.out.println("Downloading status: " + status);
+
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 				if ("exit".equals(command)) {
 					System.out.printf("Client %s disconnected correctly\n", socket.getInetAddress());
 					break;
 				}
 
-				System.out.println(command);
-				out.writeUTF(command);
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
