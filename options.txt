@@ -1,0 +1,14 @@
+1. copy, cut, paste
+2. delete
+3. list(files)
+4. user features (sigi up, sign in)
+5. rename
+6. download / upload                     - done
+7. make dir
+8. search
+9. navigation
+10. total + free space
+11. sort (name, date, size)
+12. bucket || question
+13. fix total space
+14. logging
