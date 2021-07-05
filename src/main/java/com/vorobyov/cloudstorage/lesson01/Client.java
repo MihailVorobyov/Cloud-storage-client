@@ -1,20 +1,11 @@
-package com.polozov.cloudstorage.lesson01;
+package com.vorobyov.cloudstorage.lesson01;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
 
 public class Client extends JFrame {
 	private final String ICON_PATH = "src" + File.separator + "images" + File.separator + "32x32" + File.separator;
@@ -79,8 +70,10 @@ public class Client extends JFrame {
 		}
 		
 		// ---------- Панели ----------
+		JPanel mainPanel = new JPanel(new FlowLayout());
 		
 		JPanel serverPanel = new JPanel();
+		serverPanel.setBackground(Color.red);
 		serverPanel.setLayout(new BoxLayout(serverPanel, BoxLayout.Y_AXIS));
 //		JList serverList = new JList();
 //		serverList.setPreferredSize(listPreferredSize);
@@ -103,6 +96,7 @@ public class Client extends JFrame {
 //			serverTableData[i][3] =
 		}
 		JTable serverFilesTable = new JTable(serverTableData, columns);
+		serverFilesTable.getTableHeader().setAlignmentY(Component.TOP_ALIGNMENT);
 		serverFilesTable.setRowSelectionAllowed(true);
 		serverFilesTable.setShowGrid(false);
 		serverFilesTable.getTableHeader().setReorderingAllowed(false);
@@ -112,14 +106,18 @@ public class Client extends JFrame {
 		
  		JPanel centralPanel = new JPanel();
  		centralPanel.setLayout(new BoxLayout(centralPanel, BoxLayout.Y_AXIS));
-//		centralPanel.setBackground(Color.yellow);
+		centralPanel.setBackground(Color.yellow);
 		
 		JPanel userPanel = new JPanel();
-//		userPanel.setBackground(Color.green);
+		userPanel.setBackground(Color.green);
 		JList userList = new JList();
 		userList.setPreferredSize(listPreferredSize);
 		userList.setListData(new File("client").list());
 		userPanel.add(userList);
+		
+		mainPanel.add(serverPanel);
+		mainPanel.add(centralPanel);
+		mainPanel.add(userPanel);
 		
 		JPanel southPanel = new JPanel();
 		
@@ -147,16 +145,16 @@ public class Client extends JFrame {
 			String[] cmd = textField.getText().split(" ", 2);
 			
 			if ("upload".equals(cmd[0])) {
-				sendFile(cmd[1]);
+				upload(cmd[1]);
 			} else if ("download".equals(cmd[0])) {
-				getFile(cmd[1]);
+				download(cmd[1]);
 			}
 		});
 		
 		this.getContentPane().add(BorderLayout.NORTH, menuBar);
-		this.getContentPane().add(BorderLayout.WEST, serverPanel);
-		this.getContentPane().add(BorderLayout.EAST, userPanel);
-		this.getContentPane().add(BorderLayout.CENTER, centralPanel);
+//		this.getContentPane().add(BorderLayout.WEST, serverPanel);
+//		this.getContentPane().add(BorderLayout.EAST, userPanel);
+		this.getContentPane().add(BorderLayout.CENTER, mainPanel);
 		this.getContentPane().add(BorderLayout.SOUTH, southPanel);
 		
 		southPanel.add(textField);
@@ -174,8 +172,7 @@ public class Client extends JFrame {
 		this.setVisible(true);
 	}
 
-	private void getFile(String filename) {
-		// TODO: 14.06.2021
+	private void download(String filename) {
 		try {
 			out.writeUTF("download");
 			out.writeUTF(filename);
@@ -216,7 +213,7 @@ public class Client extends JFrame {
 		}
 	}
 
-	private void sendFile(String filename) {
+	private void upload(String filename) {
 		try {
 			File file = new File("client" + File.separator + filename);
 			if (!file.exists()) {

@@ -3,7 +3,7 @@
 3. list(files)
 4. user features (sigi up, sign in)
 5. rename
-6. download / upload                     - done
+6. download / upload                    - done
 7. make dir
 8. search
 9. navigation

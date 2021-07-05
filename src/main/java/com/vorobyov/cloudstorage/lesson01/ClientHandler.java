@@ -1,4 +1,4 @@
-package com.polozov.cloudstorage.lesson01;
+package com.vorobyov.cloudstorage.lesson01;
 
 import java.io.*;
 import java.net.Socket;
@@ -60,8 +60,6 @@ public class ClientHandler implements Runnable {
 				}
 
 				if ("download".equals(command)) {
-					// TODO: 14.06.2021
-
 					try {
 						File file = new File("server" + File.separator + in.readUTF());
 						if (!file.exists()) {
