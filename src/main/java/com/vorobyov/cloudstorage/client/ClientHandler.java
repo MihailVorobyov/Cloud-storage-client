@@ -1,4 +1,4 @@
-package com.vorobyov.cloudstorage.lesson01;
+package com.vorobyov.cloudstorage.client;
 
 import java.io.*;
 import java.net.Socket;
